@@ -1719,7 +1719,7 @@ class TranslateVisitor(IRVisitor):
         left: translate.Exp = element.left_side_exp.accept_ir(self)
         right: translate.Exp = element.right_side_exp.accept_ir(self)
       
-        return translate.Exp(tree.BINOP(tree.BINOP.AND, left.un_ex(), right.un_ex()))
+        return translate.Ex(tree.BINOP(tree.BINOP.AND, left.un_ex(), right.un_ex()))
 
     
     def visit_less_than(self, element: LessThan) -> translate.Exp:
@@ -1776,17 +1776,17 @@ class TranslateVisitor(IRVisitor):
 
         return translate.Exp(tree.ESEQ(tree.CALL(calle_exp, arg_list),tree.CONST(0)))
 
-    
+     
     def visit_integer_literal(self, element: IntegerLiteral) -> translate.Exp:
         return translate.Exp(tree.CONST(element.value))
 
    
     def visit_true_exp(self, element: TrueExp) -> translate.Exp:
-        return translate.Exp(tree.CONST(1))
+        return translate.Ex(tree.CONST(1))
 
     
     def visit_false_exp(self, element: FalseExp) -> translate.Exp:
-        return translate.Exp(tree.CONST(0))
+        return translate.Ex(tree.CONST(0))
 
     #check
     def visit_identifier_exp(self, element: IdentifierExp) -> translate.Exp:
@@ -1805,22 +1805,30 @@ class TranslateVisitor(IRVisitor):
         array.append(tree.BINOP(tree.BINOP.MUL, tree.BINOP(tree.BINOP.PLUS, exp,  tree.CONST(1)), tree.CONST(self.current_frame.word_size())))
         return translate.Exp(self.current_frame.external_call("initArray", array))
         
-    #to do    
-    @abstractmethod
+    
     def visit_new_object(self, element: NewObject) -> translate.Exp:
-        pass
+        self.call_class_name = element.object_name_id.name
+        c: ClassEntry = self.symbol_table.get_class_entry(element.object_name_id.name)
+        tam: int = len(c.get_fields().keys())
+
+        params = List[tree.Exp]
+        params.append(tree.BINOP(tree.BINOP.MUL, tree.CONST(tam + 1), tree.CONST(self.current_frame.word_size())))
+        
+        alloc: tree.Exp = self.current_frame.external_call("malloc", params)
+        return translate.Ex(tree.MOVE(tree.TEMP(temp.Temp()), alloc))
 
     
     def visit_not(self, element: Not) -> translate.Exp:
         exp: translate.Exp = element.negated_exp.accept_ir(self)
 
-        return translate.Exp(tree.BINOP(tree.BINOP.XOR, tree.CONST(1), exp.un_ex()))
+        return translate.Ex(tree.BINOP(tree.BINOP.XOR, tree.CONST(1), exp.un_ex()))
    
     def visit_identifier(self, element: Identifier) -> translate.Exp:
+        self.call_class_name = element.name
         access: Access = self.var_access.get(element.name)
 
         if access is None:
             access = self.current_frame.alloc_local(False)
             self.var_access[element.name] = access
 
-        return translate.Exp(access.exp(tree.TEMP(self.current_frame.FP())))
+        return translate.Ex(access.exp(tree.TEMP(self.current_frame.FP())))
