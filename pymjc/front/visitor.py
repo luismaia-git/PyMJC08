@@ -1661,17 +1661,11 @@ class TranslateVisitor(IRVisitor):
         
         true_label: temp.Label = temp.Label()
         false_label: temp.Label = temp.Label()
-        end_if_label: temp.Label = temp.Label()
+        #end_if_label: temp.Label = temp.Label()
 
-        return translate.Nx(tree.SEQ(
-                                tree.SEQ(
-                                    tree.SEQ(
-                                        tree.SEQ(
-                                            tree.CJUMP(tree.CJUMP.EQ, exp.un_ex(), tree.CONST(1), true_label, false_label),
-                                            tree.SEQ(tree.LABEL(true_label), if_stm.un_nx())),
-                                        tree.JUMP(end_if_label)),
-                                    tree.SEQ(tree.LABEL(false_label), else_stm.un_nx())), 
-                                tree.LABEL(end_if_label)))
+        if_then_else_exp: translate.IfThenElseExp = translate.IfThenElseExp(exp, if_stm , else_stm)
+
+        return translate.Nx(if_then_else_exp.un_cx(true_label, false_label))
   
 
     def visit_while(self, element: While) -> translate.Exp:
