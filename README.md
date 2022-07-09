@@ -4,11 +4,10 @@ Este repositório tem como objetivo fazer as entregas do projeto da disciplina d
 
 # Equipe Responável
 
-Os seguintes alunos (equipe XXXXX) são responsáveis pelo projeto: 
+Os seguintes alunos (equipe PyMJCG08) são responsáveis pelo projeto: 
 
--  Mátricula: XXXX | Aluno: XXXXX 
--  Mátricula: XXXX | Aluno: XXXXX
--  Mátricula: XXXX | Aluno: XXXXX
+-  Mátricula: 493458 | Aluno: Luis Antonio da Silva Maia
+-  Mátricula: 495638 | Aluno: Italo Sousa de Alencar
 
 # Método de Avaliação
 
